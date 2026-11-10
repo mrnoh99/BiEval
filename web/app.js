@@ -84,7 +84,7 @@ $("daily-save").addEventListener("click", () => {
   const hoursRaw = $("sleep-hours").value.trim();
   const hours = hoursRaw === "" ? null : parseFloat(hoursRaw);
   if (hours !== null && (isNaN(hours) || hours < 0 || hours > 24)) { alert("총 수면 시간은 0~24 사이로 입력해 주세요."); return; }
-  rec.bedtime = $("sleep-bedtime").value || "";
+  rec.bedtime = $("sleep-bed-h").value ? `${$("sleep-bed-h").value}:${$("sleep-bed-m").value}` : "";
   rec.sleepHours = hours;
   rec.event = $("daily-event").value.trim();
 
@@ -107,7 +107,8 @@ $("daily-reset").addEventListener("click", resetDailyForm);
 
 function resetDailyForm() {
   ITEMS.forEach((it) => { $("q-" + it.key).value = it.def; $("v-" + it.key).textContent = it.def; });
-  $("sleep-bedtime").value = "";
+  $("sleep-bed-h").value = "";
+  $("sleep-bed-m").value = "00";
   $("sleep-hours").value = "";
   $("daily-event").value = "";
   $("daily-date").value = todayInput();
@@ -546,15 +547,15 @@ window.addEventListener("resize", resetChartDefault);
 window.addEventListener("orientationchange", resetChartDefault);
 
 /* ================= 초기화 ================= */
-/* 전날 잠든 시간: 30분 단위 선택(저녁 6시부터 시작해 한 바퀴) */
+/* 전날 잠든 시간: 시(저녁 6시부터 시작해 한 바퀴) + 분(0·15·30·45) 선택 */
 (function buildBedtimeOptions() {
-  let html = '<option value="">선택</option>';
-  for (let k = 0; k < 48; k++) {
-    const h = (18 + Math.floor(k / 2)) % 24, mm = k % 2 ? "30" : "00";
-    const label = `${h < 12 ? "오전" : "오후"} ${h % 12 === 0 ? 12 : h % 12}:${mm}`;
-    html += `<option value="${String(h).padStart(2, "0")}:${mm}">${label}</option>`;
+  let html = '<option value="">시 선택</option>';
+  for (let k = 0; k < 24; k++) {
+    const h = (18 + k) % 24;
+    html += `<option value="${String(h).padStart(2, "0")}">${h < 12 ? "오전" : "오후"} ${h % 12 === 0 ? 12 : h % 12}시</option>`;
   }
-  $("sleep-bedtime").innerHTML = html;
+  $("sleep-bed-h").innerHTML = html;
+  $("sleep-bed-m").innerHTML = ["00", "15", "30", "45"].map((m) => `<option value="${m}">${m}분</option>`).join("");
 })();
 buildQuestions();
 resetDailyForm();
