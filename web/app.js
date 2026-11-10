@@ -547,7 +547,7 @@ window.addEventListener("resize", resetChartDefault);
 window.addEventListener("orientationchange", resetChartDefault);
 
 /* ================= 초기화 ================= */
-/* 전날 잠든 시간: 시(저녁 6시부터 시작해 한 바퀴) + 분(0·15·30·45) 선택 */
+/* 수면 선택지 — 전날 잠든 시간: 시(저녁 6시부터 한 바퀴) + 분(0·15·30·45) */
 (function buildBedtimeOptions() {
   let html = '<option value="">시 선택</option>';
   for (let k = 0; k < 24; k++) {
@@ -555,6 +555,12 @@ window.addEventListener("orientationchange", resetChartDefault);
     html += `<option value="${String(h).padStart(2, "0")}">${h < 12 ? "오전" : "오후"} ${h % 12 === 0 ? 12 : h % 12}시</option>`;
   }
   $("sleep-bed-h").innerHTML = html;
+  // 총 수면 시간: 0~16시간, 30분 단위
+  let hrs = '<option value="">선택</option>';
+  for (let v = 0; v <= 16; v += 0.5) {
+    hrs += `<option value="${v}">${Math.floor(v)}시간${v % 1 ? " 30분" : ""}</option>`;
+  }
+  $("sleep-hours").innerHTML = hrs;
   $("sleep-bed-m").innerHTML = ["00", "15", "30", "45"].map((m) => `<option value="${m}">${m}분</option>`).join("");
 })();
 buildQuestions();
