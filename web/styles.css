@@ -211,7 +211,7 @@ td.total-cell { font-weight: 700; color: var(--primary); }
 .q-item .mood-head { margin-bottom: 6px; }
 .q-item .q-text { margin-bottom: 0; }
 .mood-score { white-space: nowrap; }
-input[type="time"] {
+select {
   padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px;
   background: var(--bg); color: var(--text); font-size: 0.95rem; font-family: inherit;
 }

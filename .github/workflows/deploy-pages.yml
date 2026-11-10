@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - claude/lucid-hypatia-2bzazg
   workflow_dispatch:
 
 # GitHub Pages 배포에 필요한 권한

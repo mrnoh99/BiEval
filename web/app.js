@@ -546,6 +546,16 @@ window.addEventListener("resize", resetChartDefault);
 window.addEventListener("orientationchange", resetChartDefault);
 
 /* ================= 초기화 ================= */
+/* 전날 잠든 시간: 30분 단위 선택(저녁 6시부터 시작해 한 바퀴) */
+(function buildBedtimeOptions() {
+  let html = '<option value="">선택</option>';
+  for (let k = 0; k < 48; k++) {
+    const h = (18 + Math.floor(k / 2)) % 24, mm = k % 2 ? "30" : "00";
+    const label = `${h < 12 ? "오전" : "오후"} ${h % 12 === 0 ? 12 : h % 12}:${mm}`;
+    html += `<option value="${String(h).padStart(2, "0")}:${mm}">${label}</option>`;
+  }
+  $("sleep-bedtime").innerHTML = html;
+})();
 buildQuestions();
 resetDailyForm();
 renderDailyTable();
