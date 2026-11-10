@@ -39,6 +39,12 @@ function todayInput() {
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const byDate = (a, b) => a.date.localeCompare(b.date);
+/* 소수 시간(7.25) → "7시간 15분" */
+function fmtSleep(v) {
+  if (v == null) return "—";
+  const min = Math.round(v * 60);
+  return `${Math.floor(min / 60)}시간` + (min % 60 ? ` ${min % 60}분` : "");
+}
 const clampNum = (v, a, b) => Math.max(a, Math.min(b, v));
 
 /* ================= 탭 ================= */
@@ -81,10 +87,9 @@ const readScore = (it) => parseInt($("q-" + it.key).value, 10);
 $("daily-save").addEventListener("click", () => {
   const rec = { id: uid(), date: $("daily-date").value || todayInput() };
   ITEMS.forEach((it) => { rec[it.key] = readScore(it); });
-  const hoursRaw = $("sleep-hours").value.trim();
-  const hours = hoursRaw === "" ? null : parseFloat(hoursRaw);
-  if (hours !== null && (isNaN(hours) || hours < 0 || hours > 24)) { alert("총 수면 시간은 0~24 사이로 입력해 주세요."); return; }
-  rec.bedtime = $("sleep-bedtime").value || "";
+  const hours = $("sleep-h").value === "" ? null
+    : parseInt($("sleep-h").value, 10) + parseInt($("sleep-m").value, 10) / 60;
+  rec.bedtime = $("sleep-bed-h").value ? `${$("sleep-bed-h").value}:${$("sleep-bed-m").value}` : "";
   rec.sleepHours = hours;
   rec.event = $("daily-event").value.trim();
 
@@ -107,8 +112,10 @@ $("daily-reset").addEventListener("click", resetDailyForm);
 
 function resetDailyForm() {
   ITEMS.forEach((it) => { $("q-" + it.key).value = it.def; $("v-" + it.key).textContent = it.def; });
-  $("sleep-bedtime").value = "";
-  $("sleep-hours").value = "";
+  $("sleep-bed-h").value = "";
+  $("sleep-bed-m").value = "00";
+  $("sleep-h").value = "";
+  $("sleep-m").value = "0";
   $("daily-event").value = "";
   $("daily-date").value = todayInput();
 }
@@ -123,7 +130,7 @@ function renderDailyTable() {
     const tr = document.createElement("tr");
     tr.innerHTML = `<td>${esc(r.date)}</td>` +
       ITEMS.map((it) => `<td>${showVal(it, r[it.key])}</td>`).join("") +
-      `<td>${esc(r.bedtime) || "—"}</td><td>${r.sleepHours != null ? r.sleepHours + "h" : "—"}</td>
+      `<td>${esc(r.bedtime) || "—"}</td><td>${fmtSleep(r.sleepHours)}</td>
       <td class="note-cell">${esc(r.event) || "—"}</td>
       <td><button class="btn link" data-del="${esc(r.id)}">삭제</button></td>`;
     tbody.appendChild(tr);
@@ -291,7 +298,7 @@ function renderChart() {
     const hit = el("rect", { x: x(i) - px / 2, y: aTop, width: px, height: bBot - aTop, fill: "transparent" });
     const t = document.createElementNS(svgNS, "title");
     t.textContent = `${r.date}\n` + ITEMS.map((it) => `${it.name}: ${showVal(it, r[it.key])}`).join("\n") +
-      `\n전날 잠든 시간: ${r.bedtime || "—"}\n수면: ${r.sleepHours != null ? r.sleepHours + "시간" : "—"}` + (r.event ? `\n메모: ${r.event}` : "");
+      `\n전날 잠든 시간: ${r.bedtime || "—"}\n수면: ${fmtSleep(r.sleepHours)}` + (r.event ? `\n메모: ${r.event}` : "");
     hit.appendChild(t);
   });
 
@@ -546,15 +553,20 @@ window.addEventListener("resize", resetChartDefault);
 window.addEventListener("orientationchange", resetChartDefault);
 
 /* ================= 초기화 ================= */
-/* 전날 잠든 시간: 30분 단위 선택(저녁 6시부터 시작해 한 바퀴) */
+/* 수면 선택지 — 전날 잠든 시간: 시(저녁 6시부터 한 바퀴) + 분(0·15·30·45) */
 (function buildBedtimeOptions() {
-  let html = '<option value="">선택</option>';
-  for (let k = 0; k < 48; k++) {
-    const h = (18 + Math.floor(k / 2)) % 24, mm = k % 2 ? "30" : "00";
-    const label = `${h < 12 ? "오전" : "오후"} ${h % 12 === 0 ? 12 : h % 12}:${mm}`;
-    html += `<option value="${String(h).padStart(2, "0")}:${mm}">${label}</option>`;
+  let html = '<option value="">시 선택</option>';
+  for (let k = 0; k < 24; k++) {
+    const h = (18 + k) % 24;
+    html += `<option value="${String(h).padStart(2, "0")}">${h < 12 ? "오전" : "오후"} ${h % 12 === 0 ? 12 : h % 12}시</option>`;
   }
-  $("sleep-bedtime").innerHTML = html;
+  $("sleep-bed-h").innerHTML = html;
+  // 총 수면 시간: 시간(0~16) + 분(0·15·30·45)
+  let hrs = '<option value="">시간 선택</option>';
+  for (let v = 0; v <= 16; v++) hrs += `<option value="${v}">${v}시간</option>`;
+  $("sleep-h").innerHTML = hrs;
+  $("sleep-m").innerHTML = ["0", "15", "30", "45"].map((m) => `<option value="${m}">${m}분</option>`).join("");
+  $("sleep-bed-m").innerHTML = ["00", "15", "30", "45"].map((m) => `<option value="${m}">${m}분</option>`).join("");
 })();
 buildQuestions();
 resetDailyForm();
