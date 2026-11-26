@@ -10,7 +10,7 @@ const ITEMS = [
   { key: "elev", name: "고조 / 경조증·조증", desc: "기분이 들뜨거나 과도하게 활기찬 고조 상태의 정도", lo: "없음", hi: "매우 심함", def: 0 },
   { key: "irr", name: "분노 / 짜증", desc: "예민함이나 분노, 격앙된 짜증의 정도", lo: "없음", hi: "매우 심함", def: 0 },
   { key: "anx", name: "불안", desc: "불안감이나 초조함의 정도", lo: "없음", hi: "매우 심함", def: 0 },
-  { key: "energy", name: "에너지 레벨", desc: "그날의 신체적·정신적 활동 에너지 수준 (5 = 평소 수준)", lo: "매우 낮음", hi: "매우 높음", def: 0 },
+  { key: "energy", name: "에너지 레벨", desc: "그날의 신체적·정신적 활동 에너지 수준 (5 = 평소 수준)", lo: "매우 낮음", hi: "매우 높음", def: 5 },
 ];
 const showVal = (it, v) => (v == null ? "—" : String(v));
 
