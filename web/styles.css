@@ -208,6 +208,7 @@ td.total-cell { font-weight: 700; color: var(--primary); }
 }
 .footer-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .footer-note { color: var(--muted); font-size: 0.8rem; }
+.footer-note.credit { align-self: center; text-align: center; }
 .q-item .mood-head { margin-bottom: 6px; }
 .q-item .q-text { margin-bottom: 0; }
 .mood-score { white-space: nowrap; }
